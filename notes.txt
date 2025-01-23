@@ -1,0 +1,12 @@
+Ideer: 
+
+* kommentatorskjerm
+** Viser scoreboard (lag, stilling, tid)
+** Siste mål, gule kort etc.. Fra cup.framtidinord.no??
+*** spillere (med statistikk for turneringen?)
+** 
+
+
+Bygg fil: 
+
+npx electron-packager . Scoreboard --platform=win32 --arch=x64 --out=dist --icon=assets/icon.ico
