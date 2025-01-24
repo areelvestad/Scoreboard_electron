@@ -450,23 +450,23 @@
 
                     const rowElement = document.createElement('tr');
                     rowElement.innerHTML = `
-            <td>${time}</td>
-            <td>${length}</td>
-            <td>${field}</td>
-            <td>${type}</td>
-            <td>${team1}</td>
-            <td>${team2}</td>
-            <td class="result">${result || 'Pending'}</td>
-            <td class="status">Pending</td>
-            <td>
-                <button class="fill-scoreboard" data-team1="${team1 || 'N/A'}" data-team2="${team2 || 'N/A'}">
-                    Fill Scoreboard
-                </button>
-                <button class="mark-completed">
-                    Mark Completed
-                </button>
-            </td>
-        `;
+                        <td>${time}</td>
+                        <td>${length}</td>
+                        <td>${field}</td>
+                        <td>${type}</td>
+                        <td>${team1}</td>
+                        <td>${team2}</td>
+                        <td class="result">${result || 'Pending'}</td>
+                        <td class="status">Pending</td>
+                        <td>
+                            <button class="fill-scoreboard" data-team1="${team1 || 'N/A'}" data-team2="${team2 || 'N/A'}">
+                                Fill Scoreboard
+                            </button>
+                            <button class="mark-completed">
+                                Mark Completed
+                            </button>
+                        </td>
+                    `;
                     matchTable.appendChild(rowElement);
                 });
 
