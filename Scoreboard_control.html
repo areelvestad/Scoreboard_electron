@@ -191,13 +191,39 @@
         }
 
         .match-list-container {
+            margin-block: 1rem;
+            margin-inline: auto;
+            width: fit-content;
+        }
+
+        .match-list-container h2 {
+            font-family: 'Bebas Neue';
+            font-size: 2rem;
+        }
+
+        .lastopp-csv {
             margin-top: 1rem;
+            width: fit-content;
+            font-size: .75rem;
+        }
+
+        .lastopp-csv label {
+            text-transform: none;
+        }
+
+        .lastopp-csv input {
+            width: fit-content;
+            height: fit-content;
+            font-size: .875rem;
+            background: none;
+            outline: none;
         }
 
         .match-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
+            font-size: .875rem;
         }
 
         .match-table th,
@@ -212,8 +238,8 @@
             font-weight: bold;
         }
 
-        .match-table td.completed {
-            background-color: #d4edda;
+        .match-table tr.completed {
+            background-color: #999fa1;
             text-decoration: line-through;
         }
 
@@ -316,27 +342,27 @@
         </div>
 
         <div class="match-list-container">
-            <h2>Matches</h2>
-            <div>
-                <label for="csv-file">Load Matches (CSV):</label>
-                <input type="file" id="csv-file" accept=".csv">
-            </div>
+            <h2>Kampoppsett</h2>
             <table class="match-table" id="match-table">
                 <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Length</th>
-                        <th>Field</th>
+                        <th>Tid</th>
+                        <th>Lengde</th>
+                        <th>Bane</th>
                         <th>Type</th>
-                        <th>Team 1</th>
-                        <th>Team 2</th>
-                        <th>Result</th>
+                        <th>Hjemme</th>
+                        <th>Borte</th>
+                        <th>Resultat</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="match-list"></tbody>
             </table>
+            <div class="lastopp-csv">
+                <label for="csv-file">Last opp CSV-fil:</label>
+                <input type="file" id="csv-file" accept=".csv">
+            </div>
         </div>
 
 
@@ -456,14 +482,14 @@
                         <td>${type}</td>
                         <td>${team1}</td>
                         <td>${team2}</td>
-                        <td class="result">${result || 'Pending'}</td>
-                        <td class="status">Pending</td>
+                        <td class="result">${result || '--'}</td>
+                        <td class="status">--</td>
                         <td>
                             <button class="fill-scoreboard" data-team1="${team1 || 'N/A'}" data-team2="${team2 || 'N/A'}">
-                                Fill Scoreboard
+                                Legg inn
                             </button>
                             <button class="mark-completed">
-                                Mark Completed
+                                Ferdig
                             </button>
                         </td>
                     `;
@@ -493,17 +519,17 @@
                 document.querySelectorAll('.mark-completed').forEach((button) => {
                     button.addEventListener('click', (e) => {
                         const row = e.target.closest('tr');
-                        const resultCell = row.querySelector('.result');
 
                         const team1Score = document.getElementById('team1-score-display').textContent;
                         const team2Score = document.getElementById('team2-score-display').textContent;
 
-                        resultCell.textContent = `${team1Score}-${team2Score}`;
-                        resultCell.classList.add('completed');
+                        const resultCell = row.querySelector('.result');
+                        resultCell.textContent = `${team1Score} - ${team2Score}`;
+
+                        row.classList.add('completed');
 
                         const statusCell = row.querySelector('.status');
-                        statusCell.textContent = 'Completed';
-                        statusCell.classList.add('completed');
+                        statusCell.textContent = '✔';
 
                         sendCommand('pause-timer');
 
