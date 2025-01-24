@@ -12,14 +12,14 @@
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
         :root {
-            --team1-color: #dd634d;
-            --team2-color: #dd634d;
+            --team1-color: #fd2600;
+            --team2-color: #fd2600;
         }
 
         html {
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow-x: hidden;
             background-color: rgb(15, 15, 15);
             min-width: fit-content;
         }
@@ -64,7 +64,7 @@
         .control-panel {
             border-top: 1px dashed rgb(212, 212, 212);
             background: rgb(239, 240, 241);
-            width: fit-content;
+            width: auto;
             padding: 1rem;
             margin: auto;
         }
@@ -190,6 +190,33 @@
             color: rgb(65, 65, 65);
         }
 
+        .match-list-container {
+            margin-top: 1rem;
+        }
+
+        .match-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .match-table th,
+        .match-table td {
+            border: 1px solid #ccc;
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .match-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .match-table td.completed {
+            background-color: #d4edda;
+            text-decoration: line-through;
+        }
+
         button:hover {
             background-color: #cfcfcf
         }
@@ -224,7 +251,7 @@
                 <input type="text" id="team1-name-input" placeholder="....">
                 <select id="team1-color-picker">
                     <option>Color</option>
-                    <option value="#dd634d">Teigen Cup</option>
+                    <option value="#fd2600">Teigen Cup</option>
                     <option value="#456597">FiN</option>
                     <option value="#b6b6b6">Nordreisa</option>
                     <option value="#e23637">Lyngen RØD</option>
@@ -240,7 +267,7 @@
                 <input type="text" id="team2-name-input" placeholder="....">
                 <select id="team2-color-picker">
                     <option>Color</option>
-                    <option value="#dd634d">Teigen Cup</option>
+                    <option value="#fd2600">Teigen Cup</option>
                     <option value="#456597">FiN</option>
                     <option value="#b6b6b6">Nordreisa</option>
                     <option value="#e23637">Lyngen RØD</option>
@@ -266,6 +293,7 @@
                 <button id="team2-plus">+</button>
             </div>
         </div>
+
         <div class="control control-time">
             <div>
                 <button id="set-time">Sett tid</button>
@@ -286,6 +314,32 @@
                 <span id="current-time-display">00:00</span>
             </div>
         </div>
+
+        <div class="match-list-container">
+            <h2>Matches</h2>
+            <div>
+                <label for="csv-file">Load Matches (CSV):</label>
+                <input type="file" id="csv-file" accept=".csv">
+            </div>
+            <table class="match-table" id="match-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Length</th>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Team 1</th>
+                        <th>Team 2</th>
+                        <th>Result</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="match-list"></tbody>
+            </table>
+        </div>
+
+
         <a href="http://localhost:8080/scoreboard.html">Åpne scoreboard</a>
         <a href="http://localhost:8080/scoreboard_pause.html">Åpne pause</a>
     </div>
@@ -310,7 +364,12 @@
             const currentTimeDisplay = document.getElementById('current-time-display');
 
             function sendCommand(type, value = null) {
-                ws.send(JSON.stringify({ type, value }));
+                if (ws.readyState === WebSocket.OPEN) {
+                    console.log(`Sending command: ${type}, value: ${value}`);
+                    ws.send(JSON.stringify({ type, value }));
+                } else {
+                    console.error('WebSocket is not open. Cannot send command:', type, value);
+                }
             }
 
             ws.onmessage = async (event) => {
@@ -368,28 +427,94 @@
             document.getElementById('start-timer').addEventListener('click', () => sendCommand('start-timer'));
             document.getElementById('pause-timer').addEventListener('click', () => sendCommand('pause-timer'));
             document.getElementById('reset-timer').addEventListener('click', () => sendCommand('reset-timer'));
+
+            document.getElementById('csv-file').addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const text = await file.text();
+                const rows = text.split('\n').map((row) =>
+                    row.split(',').map(cell => cell.trim().replace(/^"|"$/g, ''))
+                );
+                console.log('Parsed CSV Rows:', rows);
+
+                const matchTable = document.getElementById('match-list');
+                matchTable.innerHTML = '';
+
+                rows.forEach((row, index) => {
+                    if (index === 0) return;
+
+                    const [time, length, field, type, team1, team2, result] = row;
+
+                    console.log(`Row ${index}:`, { time, length, field, type, team1, team2, result });
+
+                    const rowElement = document.createElement('tr');
+                    rowElement.innerHTML = `
+            <td>${time}</td>
+            <td>${length}</td>
+            <td>${field}</td>
+            <td>${type}</td>
+            <td>${team1}</td>
+            <td>${team2}</td>
+            <td class="result">${result || 'Pending'}</td>
+            <td class="status">Pending</td>
+            <td>
+                <button class="fill-scoreboard" data-team1="${team1 || 'N/A'}" data-team2="${team2 || 'N/A'}">
+                    Fill Scoreboard
+                </button>
+                <button class="mark-completed">
+                    Mark Completed
+                </button>
+            </td>
+        `;
+                    matchTable.appendChild(rowElement);
+                });
+
+                attachMatchListEventListeners();
+            });
+
+            function attachMatchListEventListeners() {
+                document.querySelectorAll('.fill-scoreboard').forEach((button) => {
+                    button.addEventListener('click', (e) => {
+                        const team1 = e.target.dataset.team1;
+                        const team2 = e.target.dataset.team2;
+
+                        console.log(`Filling scoreboard with Team 1: ${team1}, Team 2: ${team2}`);
+
+                        sendCommand('team1-name', team1);
+                        sendCommand('team2-name', team2);
+
+                        sendCommand('reset-timer');
+                        sendCommand('team1-score', 0);
+                        sendCommand('team2-score', 0);
+                    });
+                });
+
+                document.querySelectorAll('.mark-completed').forEach((button) => {
+                    button.addEventListener('click', (e) => {
+                        const row = e.target.closest('tr');
+                        const resultCell = row.querySelector('.result');
+
+                        const team1Score = document.getElementById('team1-score-display').textContent;
+                        const team2Score = document.getElementById('team2-score-display').textContent;
+
+                        resultCell.textContent = `${team1Score}-${team2Score}`;
+                        resultCell.classList.add('completed');
+
+                        const statusCell = row.querySelector('.status');
+                        statusCell.textContent = 'Completed';
+                        statusCell.classList.add('completed');
+
+                        sendCommand('pause-timer');
+
+                        console.log(`Marked match as completed with result: ${team1Score}-${team2Score}`);
+                    });
+                });
+            }
         });
 
-        ws.onmessage = async (event) => {
-            const message = JSON.parse(await (event.data instanceof Blob ? event.data.text() : event.data));
-
-            if (message.type === 'state') {
-                const state = message.value;
-
-                document.getElementById('team1-name-input').value = state.team1Name;
-                document.getElementById('team2-name-input').value = state.team2Name;
-
-                document.getElementById('team1-score-display').textContent = state.team1Score;
-                document.getElementById('team2-score-display').textContent = state.team2Score;
-
-                document.getElementById('team1-color-picker').value = state.team1Color;
-                document.getElementById('team2-color-picker').value = state.team2Color;
-
-                document.getElementById('current-time-display').textContent = formatTime(state.currentTime);
-            }
-        };
-
     </script>
+
 </body>
 
 </html>

@@ -1,0 +1,104 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wdth,wght@0,75..100,100..900;1,75..100,100..900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+    :root {
+        --team-color: rgb(46, 80, 172);
+        --event-color: var(--card-yellow);
+
+        --card-red: red;
+        --card-yellow: yellow;
+    }
+
+    html {
+        height: 1080px;
+        width: 1920px;
+        background-color: transparent;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font-family: 'Roboto';
+        font-size: 3rem;
+        font-weight: 900;
+    }
+
+    .container-playerevent {
+        height: 100px;
+        width: fit-content;
+        position: absolute;
+        top: 900px;
+    }
+
+    .playerevent {
+        display: flex;
+        flex-direction: row;
+        background-color: white;
+        outline: solid white;
+        position: relative;
+        z-index: 100;
+    }
+
+    .player {
+        background-color: var(--team-color);
+        padding: 1rem;
+    }
+
+    .event {
+        background: var(--event-color);
+        width: 40px;
+        border-right: 4px solid white;
+    }
+
+    .team {
+        background-color: var(--team-color);
+        outline: solid white;
+        width: fit-content;
+        padding: .5rem 1rem;
+        font-size: 2rem;
+        z-index: 50;
+    }
+</style>
+
+<body>
+    <div class="container-playerevent">
+        <div class="playerevent">
+            <div class="event"></div>
+            <div class="player">Kristian B. Hansen</div>
+        </div>
+        <div class="team">Lyngen/Karnes IL</div>
+    </div>
+</body>
+
+<script>
+
+    const ws = new WebSocket('ws://localhost:8080');
+
+    ws.onmessage = async (event) => {
+        const message = JSON.parse(await (event.data instanceof Blob ? event.data.text() : event.data));
+
+        if (message.type === 'state') {
+            const state = message.value;
+
+            document.getElementById('team1-name').textContent = state.team1Name;
+            document.getElementById('team2-name').textContent = state.team2Name;
+
+            document.getElementById('team1-score').textContent = state.team1Score;
+            document.getElementById('team2-score').textContent = state.team2Score;
+
+            document.documentElement.style.setProperty('--team1-color', state.team1Color);
+            document.documentElement.style.setProperty('--team2-color', state.team2Color);
+        }
+    };
+
+</script>

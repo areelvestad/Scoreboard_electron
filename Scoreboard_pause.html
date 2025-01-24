@@ -160,8 +160,6 @@
             </div>
         </div>
     </div>
-
-
 </body>
 <script>
 
@@ -173,15 +171,12 @@
         if (message.type === 'state') {
             const state = message.value;
 
-            // Update team names
             document.getElementById('team1-name').textContent = state.team1Name;
             document.getElementById('team2-name').textContent = state.team2Name;
 
-            // Update scores
             document.getElementById('team1-score').textContent = state.team1Score;
             document.getElementById('team2-score').textContent = state.team2Score;
 
-            // Update colors
             document.documentElement.style.setProperty('--team1-color', state.team1Color);
             document.documentElement.style.setProperty('--team2-color', state.team2Color);
         }

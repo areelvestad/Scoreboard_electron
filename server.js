@@ -28,8 +28,8 @@ const state = {
     team2Name: '',
     team1Score: 0,
     team2Score: 0,
-    team1Color: '#dd634d',
-    team2Color: '#dd634d',
+    team1Color: '#456597',
+    team2Color: '#456597',
     currentTime: 0,
     timerInterval: null,
 };
