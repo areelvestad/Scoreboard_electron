@@ -229,13 +229,18 @@
         .match-table th,
         .match-table td {
             border: 1px solid #ccc;
-            padding: 0.5rem;
+            padding: 0.25rem;
             text-align: center;
         }
 
         .match-table th {
             background-color: #f4f4f4;
             font-weight: bold;
+        }
+
+        .match-table td.status, 
+        .match-table th.status {
+            display: none;
         }
 
         .match-table tr.completed {
@@ -347,13 +352,10 @@
                 <thead>
                     <tr>
                         <th>Tid</th>
-                        <th>Lengde</th>
-                        <th>Bane</th>
-                        <th>Type</th>
                         <th>Hjemme</th>
                         <th>Borte</th>
                         <th>Resultat</th>
-                        <th>Status</th>
+                        <th class="status">Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -372,7 +374,7 @@
 
     <div class="iframes">
         <iframe class="iframe-scoreboard" src="http://localhost:8080/scoreboard.html" frameborder="0"></iframe>
-        <!--         <iframe class="iframe-pause" src="http://localhost:8080/scoreboard_pause.html" frameborder="0"></iframe> -->
+        <!-- <iframe class="iframe-pause" src="http://localhost:8080/scoreboard_pause.html" frameborder="0"></iframe> -->
     </div>
 
     <script>
@@ -477,9 +479,6 @@
                     const rowElement = document.createElement('tr');
                     rowElement.innerHTML = `
                         <td>${time}</td>
-                        <td>${length}</td>
-                        <td>${field}</td>
-                        <td>${type}</td>
                         <td>${team1}</td>
                         <td>${team2}</td>
                         <td class="result">${result || '--'}</td>
