@@ -238,7 +238,7 @@
             font-weight: bold;
         }
 
-        .match-table td.status, 
+        .match-table td.status,
         .match-table th.status {
             display: none;
         }
@@ -379,6 +379,7 @@
 
     <script>
         const ws = new WebSocket('ws://localhost:8080');
+        let initialLoad = true;
 
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -390,11 +391,13 @@
             const team2ScoreDisplay = document.getElementById('team2-score-display');
             const timeInput = document.getElementById('time-input');
             const currentTimeDisplay = document.getElementById('current-time-display');
+            const matchTable = document.getElementById('match-list');
 
-            function sendCommand(type, value = null) {
+            function sendCommand(type, value) {
                 if (ws.readyState === WebSocket.OPEN) {
-                    console.log(`Sending command: ${type}, value: ${value}`);
-                    ws.send(JSON.stringify({ type, value }));
+                    const payload = JSON.stringify({ type, value });
+                    console.log(`Sending command: ${type}, value:`, value);
+                    ws.send(payload);
                 } else {
                     console.error('WebSocket is not open. Cannot send command:', type, value);
                 }
@@ -413,6 +416,13 @@
                     team1ScoreDisplay.textContent = state.team1Score;
                     team2ScoreDisplay.textContent = state.team2Score;
                     currentTimeDisplay.textContent = formatTime(state.currentTime);
+
+                    // Reload CSV data if available
+                    if (initialLoad && state.csvData) {
+                        console.log('Reloading CSV from server:', state.csvData);
+                        renderMatchList(state.csvData);
+                        initialLoad = false; // Prevent reloading on subsequent updates
+                    }
                 }
             };
 
@@ -464,41 +474,44 @@
                 const rows = text.split('\n').map((row) =>
                     row.split(',').map(cell => cell.trim().replace(/^"|"$/g, ''))
                 );
+
+                sendCommand('load-csv', rows);
                 console.log('Parsed CSV Rows:', rows);
 
-                const matchTable = document.getElementById('match-list');
-                matchTable.innerHTML = '';
+                renderMatchList(rows);
+            });
 
-                rows.forEach((row, index) => {
-                    if (index === 0) return;
+            function renderMatchList(csvData) {
+                matchTable.innerHTML = ''; // Clear the table
+
+                csvData.forEach((row, index) => {
+                    if (index === 0) return; // Skip the header row
 
                     const [time, length, field, type, team1, team2, result] = row;
 
-                    console.log(`Row ${index}:`, { time, length, field, type, team1, team2, result });
-
                     const rowElement = document.createElement('tr');
                     rowElement.innerHTML = `
-                        <td>${time}</td>
-                        <td>${team1}</td>
-                        <td>${team2}</td>
-                        <td class="result">${result || '--'}</td>
-                        <td class="status">--</td>
-                        <td>
-                            <button class="fill-scoreboard" data-team1="${team1 || 'N/A'}" data-team2="${team2 || 'N/A'}">
-                                Legg inn
-                            </button>
-                            <button class="mark-completed">
-                                Ferdig
-                            </button>
-                        </td>
-                    `;
+                    <td>${time}</td>
+                    <td>${team1}</td>
+                    <td>${team2}</td>
+                    <td class="result">${result || '--'}</td>
+                    <td class="status">--</td>
+                    <td>
+                        <button class="fill-scoreboard" data-team1="${team1 || 'N/A'}" data-team2="${team2 || 'N/A'}">
+                            ►
+                        </button>
+                        <button class="mark-completed">
+                            ✔
+                        </button>
+                    </td>
+                `;
                     matchTable.appendChild(rowElement);
                 });
 
-                attachMatchListEventListeners();
-            });
+                tableAction();
+            }
 
-            function attachMatchListEventListeners() {
+            function tableAction() {
                 document.querySelectorAll('.fill-scoreboard').forEach((button) => {
                     button.addEventListener('click', (e) => {
                         const team1 = e.target.dataset.team1;
@@ -529,6 +542,13 @@
 
                         const statusCell = row.querySelector('.status');
                         statusCell.textContent = '✔';
+
+                        const matchIndex = [...row.parentNode.children].indexOf(row); // Determine the row index
+
+                        sendCommand('store-result', {
+                            matchIndex,
+                            result: `${team1Score} - ${team2Score}`,
+                        });
 
                         sendCommand('pause-timer');
 

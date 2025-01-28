@@ -8,7 +8,7 @@ let mainWindow;
 async function createWindow() {
     mainWindow = new BrowserWindow({
         width: 800,
-        height: 600,
+        height: 950,
         webPreferences: {
             contextIsolation: false,
             nodeIntegration: true,

@@ -32,6 +32,7 @@ const state = {
     team2Color: '#456597',
     currentTime: 0,
     timerInterval: null,
+    csvData: [],
 };
 
 function broadcastState() {
@@ -86,12 +87,11 @@ wss.on('connection', (ws) => {
 
     const sanitizedState = { ...state };
     delete sanitizedState.timerInterval;
-
     ws.send(JSON.stringify({ type: 'state', value: sanitizedState }));
-
 
     ws.on('message', (message) => {
         const data = JSON.parse(message);
+
         switch (data.type) {
             case 'team1-name':
                 state.team1Name = data.value;
@@ -124,7 +124,24 @@ wss.on('connection', (ws) => {
                 state.currentTime = data.value;
                 broadcastState();
                 break;
+            case 'load-csv':
+                state.csvData = data.value;
+                broadcastState();
+                break;
         }
+
+        const { type, value } = JSON.parse(message);
+
+        if (type === 'store-result') {
+            const { matchIndex, result } = value;
+    
+            if (state.csvData && state.csvData[matchIndex]) {
+                // Update the result in the stored CSV data
+                state.csvData[matchIndex + 1][6] = result; // Assuming column 6 is the "Resultat" column
+                console.log(`Updated result for match ${matchIndex}: ${result}`);
+            }
+        }
+        
         broadcastState();
     });
 });
