@@ -281,32 +281,12 @@
                 <label for="team1-name-input">HOME:</label>
                 <input type="text" id="team1-name-input" placeholder="....">
                 <select id="team1-color-picker">
-                    <option>Color</option>
-                    <option value="#fd2600">Teigen Cup</option>
-                    <option value="#456597">FiN</option>
-                    <option value="#b6b6b6">Nordreisa</option>
-                    <option value="#e23637">Lyngen RØD</option>
-                    <option value="#2471b9">Lyngen BLÅ</option>
-                    <option value="#0084ca">Skjervøy</option>
-                    <option value="#e23637">Storfjord</option>
-                    <option value="#b72441">Indre Kåfjord</option>
-                    <option value="#2cb53e">Furuflaten</option>
                 </select>
             </div>
             <div>
                 <label for="team2-name-input">AWAY:</label>
                 <input type="text" id="team2-name-input" placeholder="....">
                 <select id="team2-color-picker">
-                    <option>Color</option>
-                    <option value="#fd2600">Teigen Cup</option>
-                    <option value="#456597">FiN</option>
-                    <option value="#b6b6b6">Nordreisa</option>
-                    <option value="#e23637">Lyngen RØD</option>
-                    <option value="#2471b9">Lyngen BLÅ</option>
-                    <option value="#0084ca">Skjervøy</option>
-                    <option value="#e23637">Storfjord</option>
-                    <option value="#b72441">Indre Kåfjord</option>
-                    <option value="#2cb53e">Furuflaten</option>
                 </select>
             </div>
         </div>
@@ -392,6 +372,23 @@
             const timeInput = document.getElementById('time-input');
             const currentTimeDisplay = document.getElementById('current-time-display');
             const matchTable = document.getElementById('match-list');
+
+            const teamColors = `
+                <option>Velg farge</option>
+                <option value="#fd2600">Teigen Cup</option>
+                <option value="#456597">Framtid i Nord</option>
+                <option value="#b6b6b6">Nordreisa</option>
+                <option value="#e23637">Lyngen 1</option>
+                <option value="#2471b9">Lyngen 2</option>
+                <option value="#0084ca">Skjervøy</option>
+                <option value="#e23638">Storfjord</option>
+                <option value="#b72441">Indre Kåfjord</option>
+                <option value="#2cb53e">Furuflaten</option>
+            `;
+
+            team1ColorPicker.innerHTML = teamColors;
+            team2ColorPicker.innerHTML = teamColors;
+
 
             function sendCommand(type, value) {
                 if (ws.readyState === WebSocket.OPEN) {
