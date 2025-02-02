@@ -331,12 +331,14 @@
             <table class="match-table" id="match-table">
                 <thead>
                     <tr>
-                        <th>Tid</th>
-                        <th>Hjemme</th>
-                        <th>Borte</th>
-                        <th>Resultat</th>
+                        <th>TID</th>
+                        <th>HJEMME</th>
+                        <th>Farge</th>
+                        <th>Farge</th>
+                        <th>BORTE</th>
+                        <th>RESULTAT</th>
                         <th class="status">Status</th>
-                        <th>Actions</th>
+                        <th>ACTIONS</th>
                     </tr>
                 </thead>
                 <tbody id="match-list"></tbody>
@@ -374,16 +376,16 @@
             const matchTable = document.getElementById('match-list');
 
             const teamColors = `
-                <option>Velg farge</option>
-                <option value="#fd2600">Teigen Cup</option>
-                <option value="#456597">Framtid i Nord</option>
-                <option value="#b6b6b6">Nordreisa</option>
-                <option value="#e23637">Lyngen 1</option>
-                <option value="#2471b9">Lyngen 2</option>
-                <option value="#0084ca">Skjervøy</option>
-                <option value="#e23638">Storfjord</option>
-                <option value="#b72441">Indre Kåfjord</option>
-                <option value="#2cb53e">Furuflaten</option>
+                <option>...</option>
+                <option value="#fd2600">TC</option>
+                <option value="#456597">FiN</option>
+                <option value="#b6b6b6">NIL</option>
+                <option value="#e23637">L/K 1</option>
+                <option value="#2471b9">L/K 2</option>
+                <option value="#0084ca">SIK</option>
+                <option value="#e23638">SIL</option>
+                <option value="#b72441">IKIL</option>
+                <option value="#2cb53e">FIL</option>
             `;
 
             team1ColorPicker.innerHTML = teamColors;
@@ -414,11 +416,10 @@
                     team2ScoreDisplay.textContent = state.team2Score;
                     currentTimeDisplay.textContent = formatTime(state.currentTime);
 
-                    // Reload CSV data if available
                     if (initialLoad && state.csvData) {
                         console.log('Reloading CSV from server:', state.csvData);
                         renderMatchList(state.csvData);
-                        initialLoad = false; // Prevent reloading on subsequent updates
+                        initialLoad = false;
                     }
                 }
             };
@@ -479,10 +480,10 @@
             });
 
             function renderMatchList(csvData) {
-                matchTable.innerHTML = ''; // Clear the table
+                matchTable.innerHTML = '';
 
                 csvData.forEach((row, index) => {
-                    if (index === 0) return; // Skip the header row
+                    if (index === 0) return;
 
                     const [time, length, field, type, team1, team2, result] = row;
 
@@ -490,6 +491,12 @@
                     rowElement.innerHTML = `
                     <td>${time}</td>
                     <td>${team1}</td>
+                                <td>
+                <select class="team1-color"></select>
+                    </td>
+                    <td>
+                        <select class="team2-color"></select>
+                    </td>
                     <td>${team2}</td>
                     <td class="result">${result || '--'}</td>
                     <td class="status">--</td>
@@ -509,19 +516,31 @@
             }
 
             function tableAction() {
-                document.querySelectorAll('.fill-scoreboard').forEach((button) => {
-                    button.addEventListener('click', (e) => {
-                        const team1 = e.target.dataset.team1;
-                        const team2 = e.target.dataset.team2;
+                document.querySelectorAll('.team1-color').forEach(select => {
+                    select.innerHTML = teamColors;
+                });
 
-                        console.log(`Filling scoreboard with Team 1: ${team1}, Team 2: ${team2}`);
+                document.querySelectorAll('.team2-color').forEach(select => {
+                    select.innerHTML = teamColors;
+                });
 
-                        sendCommand('team1-name', team1);
-                        sendCommand('team2-name', team2);
+                document.querySelectorAll('.fill-scoreboard').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const row = this.closest('tr');
+                        const team1Color = row.querySelector('.team1-color').value;
+                        const team2Color = row.querySelector('.team2-color').value;
+                        const team1 = this.getAttribute('data-team1');
+                        const team2 = this.getAttribute('data-team2');
 
-                        sendCommand('reset-timer');
-                        sendCommand('team1-score', 0);
-                        sendCommand('team2-score', 0);
+                        const ws = new WebSocket('ws://localhost:8080');
+                        ws.onopen = function () {
+                            ws.send(JSON.stringify({ type: 'team1-color', value: team1Color }));
+                            ws.send(JSON.stringify({ type: 'team2-color', value: team2Color }));
+                            ws.send(JSON.stringify({ type: 'team1-name', value: team1 }));
+                            ws.send(JSON.stringify({ type: 'team2-name', value: team2 }));
+                            ws.send(JSON.stringify({ type: 'team1-score', value: 0 }));
+                            ws.send(JSON.stringify({ type: 'team2-score', value: 0 }));
+                        };
                     });
                 });
 
@@ -540,7 +559,7 @@
                         const statusCell = row.querySelector('.status');
                         statusCell.textContent = '✔';
 
-                        const matchIndex = [...row.parentNode.children].indexOf(row); // Determine the row index
+                        const matchIndex = [...row.parentNode.children].indexOf(row);
 
                         sendCommand('store-result', {
                             matchIndex,
