@@ -1,0 +1,191 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+    :root {
+        --team1-color: #dd634d;
+        --team2-color: #dd634d;
+    }
+
+    html {
+        background-color: rgba(0, 0, 0, 0.50);
+        font-size: 60px;
+        font-family: 'Roboto';
+        font-weight: 900;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 1920;
+        height: 1080;
+
+        body {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+        }
+    }
+
+    .scoreboard {
+        height: 100px;
+        width: 750px;
+        background-color: white;
+        padding: 3px;
+        display: flex;
+    }
+
+    .teams {
+        display: flex;
+        background: transparent;
+        height: 100%;
+        width: 100%;
+        text-transform: capitalize;
+        color: black;
+        font-weight: 900;
+    }
+
+    .scores {
+        display: none;
+        height: 100%;
+        color: white;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .score {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-inline: 15px;
+        flex: 1;
+        min-width: 0px;
+        max-width: 2000px;
+        text-align: center;
+    }
+
+    .score span {
+        margin-inline: 5px;
+    }
+
+    .team1-score {
+        background: color-mix(in srgb, var(--team1-color) 50%, black 50%);
+    }
+
+    .team2-score {
+        background: color-mix(in srgb, var(--team2-color) 50%, black 50%);
+    }
+
+    .team {
+        background-color: rgb(255, 255, 255) !important;
+        display: inline;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .team.team1 {
+        justify-content: end;
+        background-color: var(--team1-color);
+    }
+
+    .team.team1 span {
+        margin-right: 20px;
+    }
+
+    .team.team1 span:empty::after {
+        content: "HJEMME";
+    }
+
+    .team.team2 {
+        justify-content: start;
+        background-color: var(--team2-color);
+    }
+
+    .team.team2 span {
+        margin-left: 20px;
+    }
+
+    .team.team2 span:empty::after {
+        content: "BORTE";
+    }
+
+    .time {
+        width: 25%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+
+    .pause {
+        background: transparent;
+        height: fit-content;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pause .nestetitle {
+        font-size: 100px;
+        margin: .25rem auto;
+        color: white;
+        text-shadow: 1px 1px 2px black; 
+    }
+
+    .nestekamp {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 150px;
+        color: rgb(0, 0, 0);
+        gap: 20px;
+        background-color: #ffffff;
+        padding: .5rem 3rem;
+    }
+
+    .nestekamp * {
+        color: black !important;
+        text-wrap: nowrap;
+    }
+</style>
+
+<body>
+    <div class="scoreboard pause">
+        <div class="nestetitle">Neste kamp</div>
+
+
+        <div class="nestekamp">
+            <span id="team1-name"></span>
+            <div class="vs">mot</div>
+            <span id="team2-name"></span>
+        </div>
+    </div>
+</body>
+<script>
+
+    const ws = new WebSocket('ws://localhost:8080');
+
+    ws.onmessage = async (event) => {
+        const message = JSON.parse(await (event.data instanceof Blob ? event.data.text() : event.data));
+
+        if (message.type === 'state') {
+            const state = message.value;
+
+            document.getElementById('team1-name').textContent = state.team1Name;
+            document.getElementById('team2-name').textContent = state.team2Name;
+
+            document.getElementById('team1-score').textContent = state.team1Score;
+            document.getElementById('team2-score').textContent = state.team2Score;
+
+            document.documentElement.style.setProperty('--team1-color', state.team1Color);
+            document.documentElement.style.setProperty('--team2-color', state.team2Color);
+        }
+    };
+
+</script>

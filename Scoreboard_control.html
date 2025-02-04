@@ -462,7 +462,12 @@
 
             document.getElementById('start-timer').addEventListener('click', () => sendCommand('start-timer'));
             document.getElementById('pause-timer').addEventListener('click', () => sendCommand('pause-timer'));
-            document.getElementById('reset-timer').addEventListener('click', () => sendCommand('reset-timer'));
+            document.getElementById('reset-timer').addEventListener('click', () => {
+                const newScore = 0;
+                sendCommand('team1-score', newScore);
+                sendCommand('team2-score', newScore);
+                sendCommand('reset-timer');
+            });
 
             document.getElementById('csv-file').addEventListener('change', async (event) => {
                 const file = event.target.files[0];

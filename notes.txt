@@ -10,3 +10,19 @@ Ideer:
 Bygg fil: 
 
 npx electron-packager . Scoreboard --platform=win32 --arch=x64 --out=dist --icon=assets/icon.ico
+
+
+GRAFIKK:
+* Scoreboard _ferdig
+* Neste kamp 
+* Pause (Ikke sikkert det e nødvendig) _ferdig
+* Spillermål ???
+* Kampen kommenteres av: 
+** Dommer: 
+* Logo
+* Startbilde
+
+
+ANNET:
+
+* Hvis kommentatorene mangler info, mulig å gi de informasjon
