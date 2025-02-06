@@ -1,0 +1,105 @@
+<style>
+    html {
+        background-color: gray;
+    }
+
+    .goal-box {
+        background: black;
+        color: white;
+        padding: 20px;
+        width: 500px;
+        margin: auto;
+        text-align: center;
+        font-family: Arial, sans-serif;
+    }
+
+    .goals-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .goals-column {
+        width: 45%;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .goal {
+        background: #222;
+        padding: 5px 10px;
+        margin: 5px;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+</style>
+
+<div class="goal-box">
+    <h2>Match Goals</h2>
+    <div class="goals-container">
+        <div id="home-goals" class="goals-column"></div>
+        <div id="away-goals" class="goals-column"></div>
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const ws = new WebSocket("ws://localhost:8080");
+
+        ws.onopen = () => console.log("WebSocket connected");
+        ws.onerror = (error) => console.error("WebSocket error:", error);
+
+        ws.onmessage = async (event) => {
+    const message = JSON.parse(await (event.data instanceof Blob ? event.data.text() : event.data));
+
+    console.log("WebSocket message received:", message);
+
+    if (message.type === "state" && message.value.matchGoals) {
+        console.log("Received goal updates:", message.value.matchGoals);
+
+        const goals = message.value.matchGoals.goals;
+
+        if (goals && Array.isArray(goals)) {
+            updateGoalDisplay(goals);
+        } else {
+            console.warn("No goals data found in received message.");
+        }
+    }
+};
+
+
+
+
+
+function updateGoalDisplay(goals) {
+    const homeGoalsContainer = document.getElementById("home-goals");
+    const awayGoalsContainer = document.getElementById("away-goals");
+
+    homeGoalsContainer.innerHTML = "";
+    awayGoalsContainer.innerHTML = "";
+
+    console.log("Processing goal data...");
+
+    goals.forEach(({ goalType, player, minute }) => {
+        const goalElement = document.createElement("div");
+        goalElement.classList.add("goal");
+        goalElement.textContent = `${player} ${minute}'`;
+
+        if (goalType === "home") {
+            console.log(`Appending goal to Home Team: ${player} (${minute}')`);
+            homeGoalsContainer.appendChild(goalElement);
+        } else {
+            console.log(`Appending goal to Away Team: ${player} (${minute}')`);
+            awayGoalsContainer.appendChild(goalElement);
+        }
+    });
+}
+
+
+
+
+    });
+
+
+</script>

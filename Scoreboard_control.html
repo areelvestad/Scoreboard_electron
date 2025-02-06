@@ -79,6 +79,20 @@
         }
 
 
+        .currentMatchId {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            margin-block: .5rem;
+        }
+
+        .currentMatchId label {
+            display: inline-block;
+            font-weight: 900;
+            width: 100px;
+            text-wrap: nowrap;
+        }
 
         .control-teams label {
             display: inline-block;
@@ -305,6 +319,12 @@
             </div>
         </div>
 
+        <div class="currentMatchId">
+            <label for="mid-input">Match-ID: </label>
+            <input type="text" id="mid-input" placeholder="....">
+            <button id="update-goal-actions">Oppdater målhendelser</button>
+        </div>
+
         <div class="control control-time">
             <div>
                 <button id="set-time">Sett tid</button>
@@ -339,6 +359,7 @@
                         <th>RESULTAT</th>
                         <th class="status">Status</th>
                         <th>ACTIONS</th>
+                        <th>MID</th>
                     </tr>
                 </thead>
                 <tbody id="match-list"></tbody>
@@ -350,8 +371,9 @@
         </div>
 
         <a href="http://localhost:8080/scoreboard.html">Åpne scoreboard</a>
-        <a href="http://localhost:8080/scoreboard_pause.html">Åpne pause</a>
-        
+        <a href="http://localhost:8080/scoreboard_goals.html">Goals</a>
+
+
     </div>
 
     <div class="iframes">
@@ -374,6 +396,7 @@
             const timeInput = document.getElementById('time-input');
             const currentTimeDisplay = document.getElementById('current-time-display');
             const matchTable = document.getElementById('match-list');
+            const midInput = document.getElementById('mid-input');
 
             const teamColors = `
                 <option>...</option>
@@ -416,8 +439,12 @@
                     team2ScoreDisplay.textContent = state.team2Score;
                     currentTimeDisplay.textContent = formatTime(state.currentTime);
 
+                    if (state.currentMatchId) {
+                        midInput.value = state.currentMatchId;
+                    }
+
                     if (initialLoad && state.csvData) {
-                        console.log('Reloading CSV from server:', state.csvData);
+                        console.log('CSV from server:', state.csvData);
                         renderMatchList(state.csvData);
                         initialLoad = false;
                     }
@@ -490,7 +517,7 @@
                 csvData.forEach((row, index) => {
                     if (index === 0) return;
 
-                    const [time, length, field, type, team1, team2, result] = row;
+                    const [time, length, field, type, team1, team2, result, mid] = row;
 
                     const rowElement = document.createElement('tr');
                     rowElement.innerHTML = `
@@ -506,13 +533,14 @@
                     <td class="result">${result || '--'}</td>
                     <td class="status">--</td>
                     <td>
-                        <button class="fill-scoreboard" data-team1="${team1 || 'N/A'}" data-team2="${team2 || 'N/A'}">
+                        <button class="fill-scoreboard" data-team1="${team1 || 'N/A'}" data-team2="${team2 || 'N/A'}" data-mid="${mid || ''}">
                             ►
                         </button>
                         <button class="mark-completed">
                             ✔
                         </button>
                     </td>
+                    <td>${mid}</td>
                 `;
                     matchTable.appendChild(rowElement);
                 });
@@ -536,6 +564,10 @@
                         const team2Color = row.querySelector('.team2-color').value;
                         const team1 = this.getAttribute('data-team1');
                         const team2 = this.getAttribute('data-team2');
+                        const matchId = this.getAttribute('data-mid');
+
+                        document.getElementById('mid-input').value = matchId; // Fix: Properly set the input field
+                        sendCommand('current-match-id', matchId);
 
                         const ws = new WebSocket('ws://localhost:8080');
                         ws.onopen = function () {
@@ -577,6 +609,91 @@
                     });
                 });
             }
+
+
+            async function fetchMatchActions(matchId) {
+                if (!matchId) {
+                    console.warn("No match ID found.");
+                    return;
+                }
+
+                const tournamentId = 123;
+                const matchAPI = `https://api.abomf.flage.org/get_match?tournament=${tournamentId}&matchid=${matchId}`;
+                const actionsAPI = `https://api.abomf.flage.org/get_match_actions?tournament=${tournamentId}&matchid=${matchId}`;
+                const credentials = btoa("fin:viktigmedpassord");
+
+                console.log(`Fetching match details from: ${matchAPI}`);
+                console.log(`Fetching match actions from: ${actionsAPI}`);
+
+                try {
+                    const matchResponse = await fetch(matchAPI, {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Basic ${credentials}`,
+                            "Accept": "application/json"
+                        }
+                    });
+
+                    if (!matchResponse.ok) {
+                        throw new Error(`Match API request failed: ${matchResponse.status}`);
+                    }
+
+                    const matchData = await matchResponse.json();
+                    if (!matchData.length) {
+                        console.error("Match data is empty");
+                        return;
+                    }
+
+                    const homeTeam = matchData[0].home;
+                    const awayTeam = matchData[0].away;
+
+                    console.log(`Home Team: ${homeTeam}, Away Team: ${awayTeam}`);
+
+                    const actionsResponse = await fetch(actionsAPI, {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Basic ${credentials}`,
+                            "Accept": "application/json"
+                        }
+                    });
+
+                    if (!actionsResponse.ok) {
+                        throw new Error(`Actions API request failed: ${actionsResponse.status}`);
+                    }
+
+                    const matchActions = await actionsResponse.json();
+                    console.log("Fetched match actions:", matchActions);
+
+                    // Hjemme eller bortelag??
+                    const goals = matchActions
+                        .filter(action => action.action === "Mål")
+                        .map(action => ({
+                            goalType: action.team === homeTeam ? "home" : "away",
+                            player: action.name,
+                            minute: action.minute
+                        }));
+
+                    console.log("Processed Goals:", goals);
+
+                    sendCommand('update-goals', {
+                        matchId: matchId,
+                        goals: goals
+                    });
+
+                } catch (error) {
+                    console.error("Error fetching match data:", error);
+                }
+            }
+
+
+
+            document.getElementById("update-goal-actions").addEventListener("click", () => {
+                const matchId = document.getElementById("mid-input").value;
+                fetchMatchActions(matchId);
+            });
+
+
+
         });
 
     </script>

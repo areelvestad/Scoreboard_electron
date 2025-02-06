@@ -33,6 +33,8 @@ const state = {
     currentTime: 0,
     timerInterval: null,
     csvData: [],
+    currentMatchId: 0,
+    matchGoals: '',
 };
 
 function broadcastState() {
@@ -128,20 +130,34 @@ wss.on('connection', (ws) => {
                 state.csvData = data.value;
                 broadcastState();
                 break;
+            case 'current-match-id':
+                state.currentMatchId = data.value;
+                break;
+            case 'update-goals':
+                if (data.value && data.value.matchId && Array.isArray(data.value.goals)) {
+                    state.matchGoals = {
+                        matchId: data.value.matchId,
+                        goals: data.value.goals
+                    };
+                    console.log(`Broadcasting goal updates:`, state.matchGoals);
+                    broadcastState();
+                } else {
+                    console.error("Invalid goal data received:", data);
+                }
+                break;
         }
 
         const { type, value } = JSON.parse(message);
 
         if (type === 'store-result') {
             const { matchIndex, result } = value;
-    
+
             if (state.csvData && state.csvData[matchIndex]) {
-                // Update the result in the stored CSV data
-                state.csvData[matchIndex + 1][6] = result; // Assuming column 6 is the "Resultat" column
+                state.csvData[matchIndex + 1][6] = result;
                 console.log(`Updated result for match ${matchIndex}: ${result}`);
             }
         }
-        
+
         broadcastState();
     });
 });

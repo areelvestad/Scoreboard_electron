@@ -1,0 +1,14 @@
+Klokkeslett,Lengde,Bane,Type,Lag 1,Lag 2,Resultat,MID
+11:00,20:00,Lyngenhallen,Gruppe 1,test,test,,6766
+11:00,20:00,Lyngenhallen,Gruppe 1,L/K IL,SIL,,6799
+11:20,20:00,Lyngenhallen,Gruppe 1,IKIL,SIK,,6803
+11:40,20:00,Lyngenhallen,Gruppe 1,SIL,NIL,,6804
+12:00,20:00,Lyngenhallen,Gruppe 1,SIK,L/K IL,,6805
+12:20,20:00,Lyngenhallen,Gruppe 1,NIL,IKIL,,6806
+12:40,20:00,Lyngenhallen,Gruppe 1,SIK,SIL,,6807
+13:00,20:00,Lyngenhallen,Gruppe 1,L/K IL,NIL,,6802
+13:20,20:00,Lyngenhallen,Gruppe 1,SIL,IKIL,,6801
+13:40,20:00,Lyngenhallen,Gruppe 1,NIL,SIK,,6800
+14:00,20:00,Lyngenhallen,Gruppe 1,IKIL,L/K IL,,6808
+14:20,20:00,Lyngenhallen,Bronsefinale,,,,6809
+14:40,20:00,Lyngenhallen,Finale,,,,6810
