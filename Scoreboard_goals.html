@@ -1,16 +1,37 @@
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wdth,wght@0,75..100,100..900;1,75..100,100..900&display=swap');
+
+    :root {
+        --team1-color: #fd2600;
+        --team2-color: #fd2600;
+    }
+
     html {
-        background-color: gray;
+        background-color: transparent;
+        font-size: 30px;
+        font-family: 'Roboto';
+        font-weight: 900;
+        margin: 0;
+        padding: 0;
+    }
+
+    .goalgfx {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 850px;
+        margin: auto;
     }
 
     .goal-box {
-        background: black;
-        color: white;
-        padding: 20px;
-        width: 500px;
+        background: rgba(0, 0, 0, 0.63);
+        color: rgb(255, 255, 255);
+        padding: 0;
+        width: 100%;
         margin: auto;
         text-align: center;
-        font-family: Arial, sans-serif;
+        font-family: 'Roboto', sans-serif;
     }
 
     .goals-container {
@@ -19,28 +40,161 @@
     }
 
     .goals-column {
-        width: 45%;
+        width: 50%;
         text-align: left;
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
+        font-weight: 400;
+        text-shadow: 2px 2px 3px rgb(0, 0, 0);
+    }
+
+    .goals-column#home-goals {
+        text-align: end;
+        border-right: 2px solid rgb(218, 218, 218);
+    }
+
+    .goals-column#away-goals {
+        text-align: start;
+        border-left: 2px solid rgb(218, 218, 218);
     }
 
     .goal {
-        background: #222;
+        background: transparent;
         padding: 5px 10px;
         margin: 5px;
         border-radius: 5px;
-        font-size: 14px;
+        font-size: 34px;
+
+    }
+
+    .scoreboard {
+        height: 105px;
+        width: 100%;
+        background-color: white;
+        padding: 5px;
+        display: flex;
+        font-size: 70px;
+    }
+
+    .teams {
+        display: flex;
+        background: transparent;
+        height: 100%;
+        width: 100%;
+        text-transform: capitalize;
+        color: black;
+        font-weight: 900;
+    }
+
+    .scores {
+        display: flex;
+        height: 100%;
+        color: white;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .score {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-inline: 15px;
+        flex: 1;
+        min-width: 0px;
+        max-width: 2000px;
+        text-align: center;
+    }
+
+    .score span {
+        margin-inline: 5px;
+    }
+
+    .team1-score {
+        background: color-mix(in srgb, var(--team1-color) 50%, black 50%);
+    }
+
+    .team2-score {
+        background: color-mix(in srgb, var(--team2-color) 50%, black 50%);
+    }
+
+    .team {
+        background-color: rgb(116, 116, 116);
+        display: inline;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .team.team1 {
+        justify-content: end;
+        background-color: var(--team1-color);
+    }
+
+    .team.team1 span {
+        margin-right: 20px;
+    }
+
+    .team.team1 span:empty::after {
+        content: "HJEMME";
+    }
+
+    .team.team2 {
+        justify-content: start;
+        background-color: var(--team2-color);
+    }
+
+    .team.team2 span {
+        margin-left: 20px;
+    }
+
+    .team.team2 span:empty::after {
+        content: "BORTE";
+    }
+
+    .time {
+        width: 200px;
+        height: 60px;
+        font-size: 45px;
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: translateY(-15px);
     }
 </style>
-
-<div class="goal-box">
-    <h2>Match Goals</h2>
-    <div class="goals-container">
-        <div id="home-goals" class="goals-column"></div>
-        <div id="away-goals" class="goals-column"></div>
+<div class="goalgfx">
+    <div class="goal-box">
+        <div class="goals-container">
+            <div id="home-goals" class="goals-column"></div>
+            <div id="away-goals" class="goals-column"></div>
+        </div>
+    </div>
+    <div class="scoreboard">
+        <div class="teams">
+            <div class="team1 team">
+                <span id="team1-name"></span>
+            </div>
+            <div class="scores">
+                <div class="team1-score score">
+                    <span id="team1-score">0</span>
+                </div>
+                <div class="team2-score score">
+                    <span id="team2-score">0</span>
+                </div>
+            </div>
+            <div class="team2 team">
+                <span id="team2-name"></span>
+            </div>
+        </div>
+    </div>
+    <div class="time">
+        <span id="time"></span>
     </div>
 </div>
+
+
 
 <script>
 
@@ -51,28 +205,39 @@
         ws.onerror = (error) => console.error("WebSocket error:", error);
 
         ws.onmessage = async (event) => {
-    const message = JSON.parse(await (event.data instanceof Blob ? event.data.text() : event.data));
+            const message = JSON.parse(await (event.data instanceof Blob ? event.data.text() : event.data));
 
-    console.log("WebSocket message received:", message);
+            console.log("WebSocket message received:", message);
 
-    if (message.type === "state" && message.value.matchGoals) {
-        console.log("Received goal updates:", message.value.matchGoals);
+            if (message.type === "state" && message.value.matchGoals) {
+                console.log("Received goal updates:", message.value.matchGoals);
 
-        const goals = message.value.matchGoals.goals;
+                const goals = message.value.matchGoals.goals;
 
-        if (goals && Array.isArray(goals)) {
-            updateGoalDisplay(goals);
-        } else {
-            console.warn("No goals data found in received message.");
-        }
-    }
-};
+                if (goals && Array.isArray(goals)) {
+                    updateGoalDisplay(goals);
+                } else {
+                    console.warn("No goals data found in received message.");
+                }
+            }
 
+            if (message.type === 'state') {
+                const state = message.value;
 
+                document.getElementById('team1-name').textContent = state.team1Name;
+                document.getElementById('team2-name').textContent = state.team2Name;
 
+                document.getElementById('team1-score').textContent = state.team1Score;
+                document.getElementById('team2-score').textContent = state.team2Score;
 
+                document.documentElement.style.setProperty('--team1-color', state.team1Color);
+                document.documentElement.style.setProperty('--team2-color', state.team2Color);
 
-function updateGoalDisplay(goals) {
+                document.getElementById('time').textContent = formatTime(state.currentTime);
+            }
+        };
+
+        function updateGoalDisplay(goals) {
     const homeGoalsContainer = document.getElementById("home-goals");
     const awayGoalsContainer = document.getElementById("away-goals");
 
@@ -81,24 +246,46 @@ function updateGoalDisplay(goals) {
 
     console.log("Processing goal data...");
 
+    const homeGoalsMap = {};
+    const awayGoalsMap = {};
+
     goals.forEach(({ goalType, player, minute }) => {
-        const goalElement = document.createElement("div");
-        goalElement.classList.add("goal");
-        goalElement.textContent = `${player} ${minute}'`;
+        const lastName = player.split(" ").pop(); // Extract last name
 
         if (goalType === "home") {
-            console.log(`Appending goal to Home Team: ${player} (${minute}')`);
-            homeGoalsContainer.appendChild(goalElement);
+            if (!homeGoalsMap[lastName]) {
+                homeGoalsMap[lastName] = [];
+            }
+            homeGoalsMap[lastName].push(`${minute}`);
         } else {
-            console.log(`Appending goal to Away Team: ${player} (${minute}')`);
-            awayGoalsContainer.appendChild(goalElement);
+            if (!awayGoalsMap[lastName]) {
+                awayGoalsMap[lastName] = [];
+            }
+            awayGoalsMap[lastName].push(`${minute}`);
         }
+    });
+
+    Object.entries(homeGoalsMap).forEach(([lastName, minutes]) => {
+        const goalElement = document.createElement("div");
+        goalElement.classList.add("goal");
+        goalElement.textContent = `${lastName} (${minutes.join(", ")})`; // "Breivik 4' 12' 30'"
+        homeGoalsContainer.prepend(goalElement);
+    });
+
+    Object.entries(awayGoalsMap).forEach(([lastName, minutes]) => {
+        const goalElement = document.createElement("div");
+        goalElement.classList.add("goal");
+        goalElement.textContent = `${minutes.join(" ")} ${lastName}`; // "4' 12' 30' Breivik"
+        awayGoalsContainer.prepend(goalElement);
     });
 }
 
 
-
-
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
     });
 
 
