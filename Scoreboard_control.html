@@ -53,6 +53,7 @@
             flex-direction: column;
             line-height: .9;
             margin-block: 2rem;
+            display: none;
         }
 
         h1 span {
@@ -273,8 +274,8 @@
         iframe {
             display: flex;
             margin: 0 auto;
-            width: 570px;
-            height: 78px;
+            width: 100%;
+            height: 500px;
             margin-top: 2rem;
         }
 
@@ -377,8 +378,7 @@
     </div>
 
     <div class="iframes">
-        <iframe class="iframe-scoreboard" src="http://localhost:8080/scoreboard.html" frameborder="0"></iframe>
-        <!-- <iframe class="iframe-pause" src="http://localhost:8080/scoreboard_pause.html" frameborder="0"></iframe> -->
+        <iframe class="iframe-scoreboard" src="http://localhost:8080/scoreboard_goals.html" frameborder="0"></iframe>
     </div>
 
     <script>
@@ -566,7 +566,7 @@
                         const team2 = this.getAttribute('data-team2');
                         const matchId = this.getAttribute('data-mid');
 
-                        document.getElementById('mid-input').value = matchId; // Fix: Properly set the input field
+                        document.getElementById('mid-input').value = matchId; 
                         sendCommand('current-match-id', matchId);
 
                         const ws = new WebSocket('ws://localhost:8080');
@@ -617,7 +617,7 @@
                     return;
                 }
 
-                const tournamentId = 123;
+                const tournamentId = 124;
                 const matchAPI = `https://api.abomf.flage.org/get_match?tournament=${tournamentId}&matchid=${matchId}`;
                 const actionsAPI = `https://api.abomf.flage.org/get_match_actions?tournament=${tournamentId}&matchid=${matchId}`;
                 const credentials = btoa("fin:viktigmedpassord");

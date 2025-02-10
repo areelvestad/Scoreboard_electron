@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wdth,wght@0,75..100,100..900;1,75..100,100..900&display=swap');
+
+  body {
+    height: 100%;
+    width: fit-content;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto;
+    padding-top: 1rem;
+  }
+
+  table,
+  h1, a {
+    font-family: 'Roboto';
+    text-decoration: none;
+    color: white;
+  }
+
+  table {
+    border-left: 5px solid rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0.37);
+    width: 1200px;
+    font-size: 2.5rem;
+    font-weight: 700;
+    padding: 1rem 5rem;
+  }
+
+  h1 {
+
+    color: white;
+    text-align: center;
+    font-size: 6rem;
+    font-weight: 900;
+    text-transform: capitalize;
+    margin: unset;
+    margin-bottom: 1.5rem;
+  }
+
+  .fillrow td:nth-of-type(2) {
+    text-align: center;
+    font-weight: 900;
+    font-size: 2.5rem;
+  }
+
+  tr td {
+    padding: 8px;
+    background-color: transparent;
+  }
+
+  tr td:nth-of-type(1) {
+    padding-right: 1rem;
+  }
+
+  tr td:nth-of-type(2) {
+    text-align: end;
+    padding-right: 1rem;
+  }
+</style>
+
+<body>
+  <table>
+    <h1>Kampoppsett</h1>
+    <tbody>
+      <tr>
+        <td>11:00</td>
+        <td><a href="team.php?id=2483">Lyngen/Karnes IL</a></td>
+        <td><a href="team.php?id=2486">Storfjord IL</a></td>
+      </tr>
+      <tr>
+        <td>11:20</td>
+        <td><a href="team.php?id=2485">Indre Kåfjord</a></td>
+        <td><a href="team.php?id=2487">Skjervøy IK</a></td>
+      </tr>
+      <tr>
+        <td>11:40</td>
+        <td><a href="team.php?id=2486">Storfjord IL</a></td>
+        <td><a href="team.php?id=2484">Nordreisa IL</a></td>
+      </tr>
+      <tr>
+        <td>12:00</td>
+        <td><a href="team.php?id=2487">Skjervøy IK</a></td>
+        <td><a href="team.php?id=2483">Lyngen/Karnes IL</a></td>
+      </tr>
+      <tr>
+        <td>12:20</td>
+        <td><a href="team.php?id=2484">Nordreisa IL</a></td>
+        <td><a href="team.php?id=2485">Indre Kåfjord</a></td>
+      </tr>
+      <tr>
+        <td>12:40</td>
+        <td><a href="team.php?id=2487">Skjervøy IK</a></td>
+        <td><a href="team.php?id=2486">Storfjord IL</a></td>
+      </tr>
+      <tr>
+        <td>13:00</td>
+        <td><a href="team.php?id=2483">Lyngen/Karnes IL</a></td>
+        <td><a href="team.php?id=2484">Nordreisa IL</a></td>
+
+      </tr>
+      <tr>
+        <td>13:20</td>
+        <td><a href="team.php?id=2486">Storfjord IL</a></td>
+        <td><a href="team.php?id=2485">Indre Kåfjord</a></td>
+      </tr>
+      <tr>
+        <td>13:40</td>
+        <td><a href="team.php?id=2484">Nordreisa IL</a></td>
+        <td><a href="team.php?id=2487">Skjervøy IK</a></td>
+      </tr>
+      <tr>
+        <td>14:00</td>
+        <td><a href="team.php?id=2485">Indre Kåfjord</a></td>
+        <td><a href="team.php?id=2483">Lyngen/Karnes IL</a></td>
+      </tr>
+      <tr class="fillrow">
+        <td colspan="1">14:20</td>
+        <td colspan="2">Bronsefinale</td>
+      </tr>
+      <tr class="fillrow">
+        <td colspan="1">14:40</td>
+        <td colspan="2">Finale</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>

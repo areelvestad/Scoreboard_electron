@@ -275,7 +275,7 @@
     Object.entries(awayGoalsMap).forEach(([lastName, minutes]) => {
         const goalElement = document.createElement("div");
         goalElement.classList.add("goal");
-        goalElement.textContent = `${minutes.join(" ")} ${lastName}`; // "4' 12' 30' Breivik"
+        goalElement.textContent = `${lastName} (${minutes.join(", ")})`; // "Breivik 4' 12' 30'"
         awayGoalsContainer.prepend(goalElement);
     });
 }
