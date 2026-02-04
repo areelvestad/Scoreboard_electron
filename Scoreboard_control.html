@@ -262,6 +262,17 @@
             text-decoration: line-through;
         }
 
+        .match-table select.color-swatch {
+            width: 60px;
+            height: 25px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .match-table select.color-swatch option {
+            color: #000000;
+        }
+
         button:hover {
             background-color: #cfcfcf
         }
@@ -288,7 +299,7 @@
 </head>
 
 <body>
-    <h1>Teigen Cup <span>Scoreboard</span></h1>
+    <!-- <h1>Teigen Cup <span>Scoreboard</span></h1> -->
     <div class="control-panel">
         <div class="control control-teams">
             <div>
@@ -400,15 +411,15 @@
 
             const teamColors = `
                 <option>...</option>
-                <option value="#fd2600">TC</option>
-                <option value="#456597">FiN</option>
-                <option value="#b6b6b6">NIL</option>
-                <option value="#e23637">L/K 1</option>
-                <option value="#2471b9">L/K 2</option>
-                <option value="#0084ca">SIK</option>
-                <option value="#e23638">SIL</option>
-                <option value="#b72441">IKIL</option>
-                <option value="#2cb53e">FIL</option>
+                <option value="#fd2600" style="background-color:#fd2600;color:#000000;">TC</option>
+                <option value="#456597" style="background-color:#456597;color:#ffffff;">FiN</option>
+                <option value="#b6b6b6" style="background-color:#b6b6b6;color:#000000;">NIL</option>
+                <option value="#e23637" style="background-color:#e23637;color:#ffffff;">L/K 1</option>
+                <option value="#2471b9" style="background-color:#2471b9;color:#ffffff;">L/K 2</option>
+                <option value="#0084ca" style="background-color:#0084ca;color:#ffffff;">SIK</option>
+                <option value="#e23638" style="background-color:#e23638;color:#ffffff;">SIL</option>
+                <option value="#b72441" style="background-color:#b72441;color:#ffffff;">IKIL</option>
+                <option value="#2cb53e" style="background-color:#2cb53e;color:#000000;">FIL</option>
             `;
 
             team1ColorPicker.innerHTML = teamColors;
@@ -523,11 +534,11 @@
                     rowElement.innerHTML = `
                     <td>${time}</td>
                     <td>${team1}</td>
-                                <td>
-                <select class="team1-color"></select>
+                    <td>
+                        <select class="team1-color color-swatch"></select>
                     </td>
                     <td>
-                        <select class="team2-color"></select>
+                        <select class="team2-color color-swatch"></select>
                     </td>
                     <td>${team2}</td>
                     <td class="result">${result || '--'}</td>
@@ -557,6 +568,25 @@
                     select.innerHTML = teamColors;
                 });
 
+                function applyColorSwatch(select) {
+                    const value = select.value;
+                    const isColor = /^#([0-9a-f]{3}){1,2}$/i.test(value);
+                    if (isColor) {
+                        select.style.backgroundColor = value;
+                        select.style.color = 'transparent';
+                        select.style.textShadow = '0 0 0 transparent';
+                    } else {
+                        select.style.backgroundColor = '';
+                        select.style.color = '';
+                        select.style.textShadow = '';
+                    }
+                }
+
+                document.querySelectorAll('.color-swatch').forEach((select) => {
+                    applyColorSwatch(select);
+                    select.addEventListener('change', () => applyColorSwatch(select));
+                });
+
                 document.querySelectorAll('.fill-scoreboard').forEach(button => {
                     button.addEventListener('click', function () {
                         const row = this.closest('tr');
@@ -577,6 +607,7 @@
                             ws.send(JSON.stringify({ type: 'team2-name', value: team2 }));
                             ws.send(JSON.stringify({ type: 'team1-score', value: 0 }));
                             ws.send(JSON.stringify({ type: 'team2-score', value: 0 }));
+                            ws.send(JSON.stringify({ type: 'reset-timer' }));
                         };
                     });
                 });
